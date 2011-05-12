@@ -47,7 +47,6 @@
  */
 
 #include <string.h>
-#include <stdint.h>
 
 #define mul32x32_64(a,b) (((uint64_t)(a))*(b))
 
@@ -64,6 +63,7 @@
 	typedef signed int int32_t;
 	typedef unsigned __int64 uint64_t;
 #else
+	#include <stdint.h>
 	#undef inline
 	#define inline __attribute__((always_inline))
 #endif

@@ -31,7 +31,7 @@ main() {
   mysecret[31] |= 64;
 
   // Load the caches
-  for (i = 0; i < 5; ++i) {
+  for (i = 0; i < 1000; ++i) {
     curve25519_donna(mypublic, mysecret, basepoint);
   }
 
@@ -41,7 +41,7 @@ main() {
   }
   uint64_t end = time_now();
 
-  printf("%luus\n", (end - start) / 100);
+  printf("%luus\n", (unsigned long int)((end - start) / 100));
 
   return 0;
 }

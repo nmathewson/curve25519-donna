@@ -36,12 +36,12 @@ main() {
   }
 
   uint64_t start = time_now();
-  for (i = 0; i < 100; ++i) {
+  for (i = 0; i < 30000; ++i) {
     curve25519_donna(mypublic, mysecret, basepoint);
   }
   uint64_t end = time_now();
 
-  printf("%luus\n", (unsigned long int)((end - start) / 100));
+  printf("%luus\n", (unsigned long int)((end - start) / 30000));
 
   return 0;
 }

@@ -581,7 +581,7 @@ curve25519_expand_sse2(bignum25519sse2 out, const unsigned char in[32]) {
  */
 static void
 curve25519_contract_sse2(unsigned char out[32], const bignum25519sse2 in) {
-  bignum25519sse2 f;
+  MM16 bignum25519sse2 f;
   curve25519_copy_sse2(f, in);
 
   #define carry_pass() \

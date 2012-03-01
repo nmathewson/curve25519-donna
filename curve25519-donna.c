@@ -1,39 +1,7 @@
-/* Copyright 2008, Google Inc.
- * All rights reserved.
+/*
+ * Public Domain by Andrew M <liquidsun@gmail.com>
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above
- * copyright notice, this list of conditions and the following disclaimer
- * in the documentation and/or other materials provided with the
- * distribution.
- *     * Neither the name of Google Inc. nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * curve25519-donna: Curve25519 elliptic curve, public key function
- *
- * http://code.google.com/p/curve25519-donna/
- *
- * Adam Langley <agl@imperialviolet.org>
- *
- * Derived from public domain C code by Daniel J. Bernstein <djb@cr.yp.to>
+ * Derived from C code by Adam Langley <agl@imperialviolet.org>
  *
  * More information about curve25519 can be found here
  *   http://cr.yp.to/ecdh.html
@@ -42,8 +10,10 @@
  * language called qhasm and uses the floating point registers.
  *
  * This is, almost, a clean room reimplementation from the curve25519 paper. It
- * uses many of the tricks described therein. Only the frecip function is taken
- * from the sample implementation.
+ * uses many of the tricks described therein. 
+ *
+ * curve25519-donna: Curve25519 elliptic curve, public key function
+ *
  */
 
 #include <string.h>
@@ -264,16 +234,7 @@ curve25519_mul(bignum25519 out, const bignum25519 in2, const bignum25519 in) {
   m8 += c;                     r8 = (uint32_t)m8 & 0x3ffffff; c = (m8 >> 26);
   m9 += c;                     r9 = (uint32_t)m9 & 0x1ffffff; p = (uint32_t)(m9 >> 25);
   m0 = r0 + mul32x32_64(p,19); r0 = (uint32_t)m0 & 0x3ffffff; p = (uint32_t)(m0 >> 26);
-  r1 += p;      p = r1 >> 25; r1 &= 0x1ffffff;
-  r2 += p;      p = r2 >> 26; r2 &= 0x3ffffff;
-  r3 += p;      p = r3 >> 25; r3 &= 0x1ffffff;
-  r4 += p;      p = r4 >> 26; r4 &= 0x3ffffff;
-  r5 += p;      p = r5 >> 25; r5 &= 0x1ffffff;
-  r6 += p;      p = r6 >> 26; r6 &= 0x3ffffff;
-  r7 += p;      p = r7 >> 25; r7 &= 0x1ffffff;
-  r8 += p;      p = r8 >> 26; r8 &= 0x3ffffff;
-  r9 += p;      p = r9 >> 25; r9 &= 0x1ffffff;
-  r0 += p * 19;
+  r1 += p;
 
   out[0] = r0;
   out[1] = r1;
@@ -348,16 +309,7 @@ curve25519_square_times(bignum25519 out, const bignum25519 in, int count) {
     m8 += c;                     r8 = (uint32_t)m8 & 0x3ffffff; c = (m8 >> 26);
     m9 += c;                     r9 = (uint32_t)m9 & 0x1ffffff; p = (uint32_t)(m9 >> 25);
     m0 = r0 + mul32x32_64(p,19); r0 = (uint32_t)m0 & 0x3ffffff; p = (uint32_t)(m0 >> 26);
-    r1 += p;      p = r1 >> 25; r1 &= 0x1ffffff;
-    r2 += p;      p = r2 >> 26; r2 &= 0x3ffffff;
-    r3 += p;      p = r3 >> 25; r3 &= 0x1ffffff;
-    r4 += p;      p = r4 >> 26; r4 &= 0x3ffffff;
-    r5 += p;      p = r5 >> 25; r5 &= 0x1ffffff;
-    r6 += p;      p = r6 >> 26; r6 &= 0x3ffffff;
-    r7 += p;      p = r7 >> 25; r7 &= 0x1ffffff;
-    r8 += p;      p = r8 >> 26; r8 &= 0x3ffffff;
-    r9 += p;      p = r9 >> 25; r9 &= 0x1ffffff;
-    r0 += p * 19;
+    r1 += p;
   } while (--count);
 
   out[0] = r0;

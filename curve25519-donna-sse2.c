@@ -1,5 +1,5 @@
 /*
- * Public Domain!
+ * Public Domain by Andrew M <liquidsun@gmail.com>
  *
  * Derived from C code by Adam Langley <agl@imperialviolet.org>
  *
@@ -364,21 +364,7 @@ curve25519_mul_sse2(bignum25519sse2 out, const bignum25519sse2 r, const bignum25
   m01 = _mm_add_epi64(m01, m0);
 
   m01 = _mm_add_epi64(m01, _mm_slli_si128(_mm_srli_epi64(m01, 26), 8));
-  m23 = _mm_add_epi64(m23, _mm_srli_si128(_mm_srli_epi64(m01, 25), 8));
-  m23 = _mm_add_epi64(m23, _mm_slli_si128(_mm_srli_epi64(m23, 26), 8));
-  m45 = _mm_add_epi64(m45, _mm_srli_si128(_mm_srli_epi64(m23, 25), 8));
-  m45 = _mm_add_epi64(m45, _mm_slli_si128(_mm_srli_epi64(m45, 26), 8));
-  m67 = _mm_add_epi64(m67, _mm_srli_si128(_mm_srli_epi64(m45, 25), 8));
-  m67 = _mm_add_epi64(m67, _mm_slli_si128(_mm_srli_epi64(m67, 26), 8));
-  m89 = _mm_add_epi64(m89, _mm_srli_si128(_mm_srli_epi64(m67, 25), 8));
-  m89 = _mm_add_epi64(m89, _mm_slli_si128(_mm_srli_epi64(m89, 26), 8));
-  m0 = _mm_mul_epu32(_mm_srli_si128(_mm_srli_epi64(m89, 25), 8), times19_19);
-  m01 = _mm_and_si128(m01, maskcarry);
-  m23 = _mm_and_si128(m23, maskcarry);
-  m45 = _mm_and_si128(m45, maskcarry);
-  m67 = _mm_and_si128(m67, maskcarry);
-  m89 = _mm_and_si128(m89, maskcarry);
-  m01 = _mm_add_epi64(m01, m0);
+  m01 = _mm_and_si128(m01, _mm_shuffle_epi32(maskcarry, _MM_SHUFFLE(1,0,1,0)));
 
   m0123 = _mm_shuffle_epi32(m23, _MM_SHUFFLE(2,0,3,3));
   m4567 = _mm_shuffle_epi32(m67, _MM_SHUFFLE(2,0,3,3));
@@ -521,21 +507,7 @@ curve25519_square_times_sse2(bignum25519sse2 r, const bignum25519sse2 in, int co
     m01 = _mm_add_epi64(m01, m0);
 
     m01 = _mm_add_epi64(m01, _mm_slli_si128(_mm_srli_epi64(m01, 26), 8));
-    m23 = _mm_add_epi64(m23, _mm_srli_si128(_mm_srli_epi64(m01, 25), 8));
-    m23 = _mm_add_epi64(m23, _mm_slli_si128(_mm_srli_epi64(m23, 26), 8));
-    m45 = _mm_add_epi64(m45, _mm_srli_si128(_mm_srli_epi64(m23, 25), 8));
-    m45 = _mm_add_epi64(m45, _mm_slli_si128(_mm_srli_epi64(m45, 26), 8));
-    m67 = _mm_add_epi64(m67, _mm_srli_si128(_mm_srli_epi64(m45, 25), 8));
-    m67 = _mm_add_epi64(m67, _mm_slli_si128(_mm_srli_epi64(m67, 26), 8));
-    m89 = _mm_add_epi64(m89, _mm_srli_si128(_mm_srli_epi64(m67, 25), 8));
-    m89 = _mm_add_epi64(m89, _mm_slli_si128(_mm_srli_epi64(m89, 26), 8));
-    m0 = _mm_mul_epu32(_mm_srli_si128(_mm_srli_epi64(m89, 25), 8), times19_19);
-    m01 = _mm_and_si128(m01, maskcarry);
-    m23 = _mm_and_si128(m23, maskcarry);
-    m45 = _mm_and_si128(m45, maskcarry);
-    m67 = _mm_and_si128(m67, maskcarry);
-    m89 = _mm_and_si128(m89, maskcarry);
-    m01 = _mm_add_epi64(m01, m0);
+    m01 = _mm_and_si128(m01, _mm_shuffle_epi32(maskcarry, _MM_SHUFFLE(1,0,1,0)));
 
     m0123 = _mm_shuffle_epi32(m23, _MM_SHUFFLE(2,0,3,3));
     m4567 = _mm_shuffle_epi32(m67, _MM_SHUFFLE(2,0,3,3));

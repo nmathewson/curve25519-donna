@@ -8,7 +8,7 @@ Since many x86 systems are now 64-bit, and portability is important, this projec
 <tbody>
 <tr><td>curve25519</td><td>x86 32-bit</td><td>djb</td><td>244&mu;s</td><td>N/A</td><td>yes</td></tr>
 <tr><td>curve25591-donna (old)</td><td>32-bit C</td><td>agl</td><td>2078&mu;s</td><td>551&mu;s</td><td>no</td></tr>
-<tr><td>curve25591-donna</td><td>32-bit C</td><td>multiple</td><td>638&mu;s</td><td>251&mu;s</td><td>yes</td></tr>
+<tr><td>curve25591-donna</td><td>32-bit C</td><td>multiple</td><td>589&mu;s</td><td>215&mu;s</td><td>yes</td></tr>
 <tr><td>curve25519-donna-c64 (old)</td><td>64-bit C</td><td>agl</td><td>N/A</td><td>215&mu;s</td><td>yes</td></tr>
 <tr><td>curve25519-donna-c64</td><td>64-bit C</td><td>multiple</td><td>N/A</td><td>113&mu;s</td><td>yes</td></tr>
 <tr><td>curve25519-donna-sse2*</td><td>x86 SSE2</td><td>floodyberry</td><td>126&mu;s</td><td>120&mu;s</td><td>yes</td></tr>

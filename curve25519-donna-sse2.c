@@ -1,20 +1,15 @@
 /*
  * Public Domain by Andrew M <liquidsun@gmail.com>
  *
- * Derived from C code by Adam Langley <agl@imperialviolet.org>
- *
  * More information about curve25519 can be found here
  *   http://cr.yp.to/ecdh.html
  *
- * djb's sample implementation of curve25519 is written in a special assembly
- * language called qhasm and uses the floating point registers.
+ * SSE2 version which parallelizes across ops where possible, otherwise
+ * inside ops
  *
- * This is, almost, a clean room reimplementation from the curve25519 paper. It
- * uses many of the tricks described therein. Only the recip function is taken
- * from the sample implementation.
- *
- * curve25519-donna: Curve25519 elliptic curve, public key function
- *
+ * Because of wildly varying compiler performance, this version is not 
+ * intended to be linked against! It should be used to generate the .s
+ * to link against (currently icc creates the most efficient code)
  */
 
 #include <string.h>
@@ -250,7 +245,7 @@ curve25519_swap_conditional_sse2(bignum25519sse2 a, bignum25519sse2 b, uint32_t 
 
 /* interleave two bignums */
 static void OPTIONAL_INLINE
-curve25519_tangle_xz(packedelem32 *out, const bignum25519sse2 x, const bignum25519sse2 z) {
+curve25519_tangle32(packedelem32 *out, const bignum25519sse2 x, const bignum25519sse2 z) {
   xmmi x0,x1,x2,z0,z1,z2;
 
   x0 = _mm_load_si128((xmmi *)(x + 0));
@@ -269,7 +264,7 @@ curve25519_tangle_xz(packedelem32 *out, const bignum25519sse2 x, const bignum255
 
 /* split a packed bignum in to it's two parts */
 static void OPTIONAL_INLINE
-curve25519_untangle_xz(bignum25519sse2 x, bignum25519sse2 z, const packedelem64 *in) {
+curve25519_untangle64(bignum25519sse2 x, bignum25519sse2 z, const packedelem64 *in) {
   _mm_store_si128((xmmi *)(x + 0), _mm_unpacklo_epi64(_mm_unpacklo_epi32(in[0].v, in[1].v), _mm_unpacklo_epi32(in[2].v, in[3].v)));
   _mm_store_si128((xmmi *)(x + 4), _mm_unpacklo_epi64(_mm_unpacklo_epi32(in[4].v, in[5].v), _mm_unpacklo_epi32(in[6].v, in[7].v)));
   _mm_store_si128((xmmi *)(x + 8), _mm_unpacklo_epi32(in[8].v, in[9].v)                                                          );
@@ -1067,7 +1062,7 @@ curve25519_recip_sse2(bignum25519sse2 out, const bignum25519sse2 z) {
  *   basepoint: a packed little endian point of the curve
  */
 
-static void OPTIONAL_INLINE
+static void
 curve25519_scalarmult(uint8_t mypublic[32], const uint8_t n[32], const uint8_t basepoint[32]) {
   MM16 bignum25519sse2 q, zmone, nqpqx, nqpqz = {1}, nqx = {1}, nqz = {0};
   uint32_t bit, lastbit;
@@ -1089,8 +1084,8 @@ curve25519_scalarmult(uint8_t mypublic[32], const uint8_t n[32], const uint8_t b
     curve25519_swap_conditional_sse2(nqz, nqpqz, bit ^ lastbit);
     lastbit = bit;
 
-    curve25519_tangle_xz(qx, nqx, nqpqx); /* qx = [nqx,nqpqx] */
-    curve25519_tangle_xz(qz, nqz, nqpqz); /* qz = [nqz,nqpqz] */
+    curve25519_tangle32(qx, nqx, nqpqx); /* qx = [nqx,nqpqx] */
+    curve25519_tangle32(qz, nqz, nqpqz); /* qz = [nqz,nqpqz] */
     
     curve25519_add_packed32_sse2(pqx, qx, qz); /* pqx = [nqx+nqz,nqpqx+nqpqz] */
     curve25519_sub_packed32_sse2(pqz, qx, qz); /* pqz = [nqx-nqz,nqpqx-nqpqz] */
@@ -1099,7 +1094,7 @@ curve25519_scalarmult(uint8_t mypublic[32], const uint8_t n[32], const uint8_t b
     curve25519_mul_packed64_sse2(prime, primex, primez); /* prime = [nqx+nqz,nqpqx+nqpqz] * [nqpqx-nqpqz,nqx-nqz] */
     curve25519_addsub_packed64_sse2(prime); /* prime = [prime.x+prime.z,prime.x-prime.z] */
     curve25519_square_packed64_sse2(nqpq, prime); /* nqpq = prime^2 */
-    curve25519_untangle_xz(nqpqx, nqpqz, nqpq);
+    curve25519_untangle64(nqpqx, nqpqz, nqpq);
     curve25519_mul_precomp_sse2(nqpqz, nqpqz, &preq); /* nqpqz = nqpqz * q */
 
     /* (((sq.x-sq.z)*121665)+sq.x) * (sq.x-sq.z) is equivalent to (sq.x*121666-sq.z*121665) * (sq.x-sq.z) */
@@ -1107,7 +1102,7 @@ curve25519_scalarmult(uint8_t mypublic[32], const uint8_t n[32], const uint8_t b
     curve25519_square_packed64_sse2(sq, nq); /* sq = nq^2 */
     curve25519_121665_packed64_sse2(sqscalar, sq); /* sqscalar = sq * [121666,121665] */
     curve25519_final_nq(nq, sq, sqscalar); /* nq = [sq.x,sqscalar.x-sqscalar.z] * [sq.z,sq.x-sq.z] */
-    curve25519_untangle_xz(nqx, nqz, nq);
+    curve25519_untangle64(nqx, nqz, nq);
   } while (i--);
 
   curve25519_swap_conditional_sse2(nqx, nqpqx, bit);
@@ -1130,3 +1125,9 @@ curve25519_donna(uint8_t *mypublic, const uint8_t *secret, const uint8_t *basepo
   curve25519_scalarmult(mypublic, e, basepoint);
   return 0;
 }
+
+void
+curve25519_donna_raw(uint8_t *mypublic, const uint8_t *secret, const uint8_t *basepoint) {
+  curve25519_scalarmult(mypublic, secret, basepoint);
+}
+

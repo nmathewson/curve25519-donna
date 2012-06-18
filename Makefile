@@ -33,28 +33,24 @@ curve25519-donna-c64.o: curve25519-donna-c64.c
 	gcc -O2 -c curve25519-donna-c64.c -Wall
 
 test-donna: test-curve25519-donna
-	./test-curve25519-donna | head -123456 | tail -1
 
 test-donna-sse2: test-curve25519-donna-sse2
-	./test-curve25519-donna-sse2 | head -123456 | tail -1
 
 test-donna-sse2-asm: test-curve25519-donna-sse2-asm
-	./test-curve25519-donna-sse2-asm | head -123456 | tail -1
 
 test-donna-c64: test-curve25519-donna-c64
-	./test-curve25519-donna-c64 | head -123456 | tail -1
 
 test-curve25519-donna: test-curve25519.c curve25519-donna.a
-	gcc -o test-curve25519-donna test-curve25519.c curve25519-donna.a -Wall -m32
+	gcc -o test-curve25519-donna test-curve25519.c curve25519-donna.a -Wall -m32 -lssl
 
 test-curve25519-donna-sse2: test-curve25519.c curve25519-donna-sse2.a
-	gcc -o test-curve25519-donna-sse2 test-curve25519.c curve25519-donna-sse2.a -Wall -m32
+	gcc -o test-curve25519-donna-sse2 test-curve25519.c curve25519-donna-sse2.a -Wall -m32 -lssl
 
 test-curve25519-donna-sse2-asm: test-curve25519.c curve25519-donna-sse2-asm.a
-	gcc -o test-curve25519-donna-sse2-asm test-curve25519.c curve25519-donna-sse2-asm.a -Wall -m32
+	gcc -o test-curve25519-donna-sse2-asm test-curve25519.c curve25519-donna-sse2-asm.a -Wall -m32 -lssl
 
 test-curve25519-donna-c64: test-curve25519.c curve25519-donna-c64.a
-	gcc -o test-curve25519-donna-c64 test-curve25519.c curve25519-donna-c64.a -Wall
+	gcc -o test-curve25519-donna-c64 test-curve25519.c curve25519-donna-c64.a -Wall -lssl
 
 speed-curve25519-donna: speed-curve25519.c curve25519-donna.a
 	gcc -o speed-curve25519-donna speed-curve25519.c curve25519-donna.a -Wall -m32 -ggdb

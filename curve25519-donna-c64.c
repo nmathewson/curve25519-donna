@@ -31,6 +31,7 @@ typedef limb felem[5];
 // This is a special gcc mode for 128-bit integers. It's implemented on 64-bit
 // platforms only as far as I know.
 typedef unsigned uint128_t __attribute__((mode(TI)));
+#define mul64_64(a,b) (((uint128_t)(a))*(b))
 
 #undef force_inline
 #define force_inline __attribute__((always_inline))
@@ -69,19 +70,19 @@ static void force_inline
 fscalar_product(felem output, const felem in, const limb scalar) {
   uint128_t a;
 
-  a = ((uint128_t) in[0]) * scalar;
+  a = mul64_64(in[0], scalar);
   output[0] = ((limb)a) & 0x7ffffffffffff;
 
-  a = ((uint128_t) in[1]) * scalar + ((limb) (a >> 51));
+  a = mul64_64(in[1], scalar) + ((limb) (a >> 51));
   output[1] = ((limb)a) & 0x7ffffffffffff;
 
-  a = ((uint128_t) in[2]) * scalar + ((limb) (a >> 51));
+  a = mul64_64(in[2], scalar) + ((limb) (a >> 51));
   output[2] = ((limb)a) & 0x7ffffffffffff;
 
-  a = ((uint128_t) in[3]) * scalar + ((limb) (a >> 51));
+  a = mul64_64(in[3], scalar) + ((limb) (a >> 51));
   output[3] = ((limb)a) & 0x7ffffffffffff;
 
-  a = ((uint128_t) in[4]) * scalar + ((limb) (a >> 51));
+  a = mul64_64(in[4], scalar) + ((limb) (a >> 51));
   output[4] = ((limb)a) & 0x7ffffffffffff;
 
   output[0] += (a >> 51) * 19;
@@ -112,21 +113,21 @@ fmul(felem output, const felem in2, const felem in) {
   s3 = in2[3];
   s4 = in2[4];
 
-  t[0]  =  ((uint128_t) r0) * s0;
-  t[1]  =  ((uint128_t) r0) * s1 + ((uint128_t) r1) * s0;
-  t[2]  =  ((uint128_t) r0) * s2 + ((uint128_t) r2) * s0 + ((uint128_t) r1) * s1;
-  t[3]  =  ((uint128_t) r0) * s3 + ((uint128_t) r3) * s0 + ((uint128_t) r1) * s2 + ((uint128_t) r2) * s1;
-  t[4]  =  ((uint128_t) r0) * s4 + ((uint128_t) r4) * s0 + ((uint128_t) r3) * s1 + ((uint128_t) r1) * s3 + ((uint128_t) r2) * s2;
+  t[0]  =  mul64_64(r0, s0);
+  t[1]  =  mul64_64(r0, s1) + mul64_64(r1, s0);
+  t[2]  =  mul64_64(r0, s2) + mul64_64(r2, s0) + mul64_64(r1, s1);
+  t[3]  =  mul64_64(r0, s3) + mul64_64(r3, s0) + mul64_64(r1, s2) + mul64_64(r2, s1);
+  t[4]  =  mul64_64(r0, s4) + mul64_64(r4, s0) + mul64_64(r3, s1) + mul64_64(r1, s3) + mul64_64(r2, s2);
 
   r4 *= 19;
   r1 *= 19;
   r2 *= 19;
   r3 *= 19;
 
-  t[0] += ((uint128_t) r4) * s1 + ((uint128_t) r1) * s4 + ((uint128_t) r2) * s3 + ((uint128_t) r3) * s2;
-  t[1] += ((uint128_t) r4) * s2 + ((uint128_t) r2) * s4 + ((uint128_t) r3) * s3;
-  t[2] += ((uint128_t) r4) * s3 + ((uint128_t) r3) * s4;
-  t[3] += ((uint128_t) r4) * s4;
+  t[0] += mul64_64(r4, s1) + mul64_64(r1, s4) + mul64_64(r2, s3) + mul64_64(r3, s2);
+  t[1] += mul64_64(r4, s2) + mul64_64(r2, s4) + mul64_64(r3, s3);
+  t[2] += mul64_64(r4, s3) + mul64_64(r3, s4);
+  t[3] += mul64_64(r4, s4);
 
                   r0 = (limb)t[0] & 0x7ffffffffffff; c = (limb)(t[0] >> 51);
   t[1] += c;      r1 = (limb)t[1] & 0x7ffffffffffff; c = (limb)(t[1] >> 51);
@@ -163,11 +164,11 @@ fsquare_times(felem output, const felem in, limb count) {
     d419 = r4 * 19;
     d4 = d419 * 2;
 
-    t[0] = ((uint128_t) r0) * r0 + ((uint128_t) d4) * r1 + (((uint128_t) d2) * (r3     ));
-    t[1] = ((uint128_t) d0) * r1 + ((uint128_t) d4) * r2 + (((uint128_t) r3) * (r3 * 19));
-    t[2] = ((uint128_t) d0) * r2 + ((uint128_t) r1) * r1 + (((uint128_t) d4) * (r3     ));
-    t[3] = ((uint128_t) d0) * r3 + ((uint128_t) d1) * r2 + (((uint128_t) r4) * (d419   ));
-    t[4] = ((uint128_t) d0) * r4 + ((uint128_t) d1) * r3 + (((uint128_t) r2) * (r2     ));
+    t[0] = mul64_64(r0, r0) + mul64_64(d4, r1) + mul64_64(d2, (r3     ));
+    t[1] = mul64_64(d0, r1) + mul64_64(d4, r2) + mul64_64(r3, (r3 * 19));
+    t[2] = mul64_64(d0, r2) + mul64_64(r1, r1) + mul64_64(d4, (r3     ));
+    t[3] = mul64_64(d0, r3) + mul64_64(d1, r2) + mul64_64(r4, (d419   ));
+    t[4] = mul64_64(d0, r4) + mul64_64(d1, r3) + mul64_64(r2, (r2     ));
 
                     r0 = (limb)t[0] & 0x7ffffffffffff; c = (limb)(t[0] >> 51);
     t[1] += c;      r1 = (limb)t[1] & 0x7ffffffffffff; c = (limb)(t[1] >> 51);

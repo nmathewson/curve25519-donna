@@ -28,10 +28,41 @@
 typedef uint8_t u8;
 typedef uint64_t limb;
 typedef limb felem[5];
+
+#ifdef __GNUC__
 // This is a special gcc mode for 128-bit integers. It's implemented on 64-bit
 // platforms only as far as I know.
 typedef unsigned uint128_t __attribute__((mode(TI)));
 #define mul64_64(a,b) (((uint128_t)(a))*(b))
+#elif defined GNUC_BUT_CPLUSPLUS
+typedef unsigned uint128_raw_t __attribute__((mode(TI)));
+class uint128_t {
+ private:
+  uint128_raw_t val;
+ public:
+  uint128_t() {}
+  uint128_t(const uint128_t &u) : val(u.val) {}
+  explicit uint128_t(uint128_raw_t u) : val(u) {}
+  uint128_t(uint64_t u) : val(u) {}
+  ~uint128_t() {}
+  uint128_t &operator=(const uint128_t &u) { val = u.val; return *this; }
+  operator uint64_t() const { return (uint64_t)val; }
+  uint128_t operator+(const uint128_t &u) const {
+    return uint128_t(val + u.val);
+  }
+  uint128_t operator+(const uint64_t u) const {
+    return uint128_t(val + u);
+  }
+  uint128_t operator>>(int n) const {
+    return uint128_t(val >> n);
+  }
+  void operator+=(const uint128_t &u) { val += u.val; }
+  void operator&=(const uint128_t &u) { val &= u.val; }
+};
+#define mul64_64(a,b) uint128_t(((uint128_raw_t)(a)) * (b))
+#elif defined(MSC_VERSION)
+// XXXXX
+#endif
 
 #undef force_inline
 #define force_inline __attribute__((always_inline))

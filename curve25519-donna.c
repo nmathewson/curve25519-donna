@@ -560,8 +560,8 @@ curve25519_scalarmult(uint8_t mypublic[32], const uint8_t n[32], const uint8_t b
 
   do {
     bit = (n[i/8] >> (i & 7)) & 1;
-    curve25519_swap_conditional(nqx, nqpqx, bit ^ lastbit);
-    curve25519_swap_conditional(nqz, nqpqz, bit ^ lastbit);
+    curve25519_swap_conditional(nqx, nqpqx, (uint32_t)bit ^ lastbit);
+    curve25519_swap_conditional(nqz, nqpqz, (uint32_t)bit ^ lastbit);
     lastbit = bit;
 
     curve25519_add(qx, nqx, nqz);
@@ -584,8 +584,8 @@ curve25519_scalarmult(uint8_t mypublic[32], const uint8_t n[32], const uint8_t b
     curve25519_mul(nqz, nqz, zzz);
   } while (i--);
 
-  curve25519_swap_conditional(nqx, nqpqx, bit);
-  curve25519_swap_conditional(nqz, nqpqz, bit);
+  curve25519_swap_conditional(nqx, nqpqx, (uint32_t)bit);
+  curve25519_swap_conditional(nqz, nqpqz, (uint32_t)bit);
 
   curve25519_recip(zmone, nqz);
   curve25519_mul_noinline(nqz, nqx, zmone);

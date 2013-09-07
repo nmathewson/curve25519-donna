@@ -516,6 +516,9 @@ curve25519_scalarmult(uint8_t mypublic[32], const uint8_t n[32], const uint8_t b
   curve25519_contract(mypublic, nqz);
 }
 
+int curve25519_donna(uint8_t *mypublic, const uint8_t *secret, const uint8_t *basepoint);
+void curve25519_donna_raw(uint8_t *mypublic, const uint8_t *secret, const uint8_t *basepoint);
+
 int
 curve25519_donna(uint8_t *mypublic, const uint8_t *secret, const uint8_t *basepoint) {
   uint8_t e[32];
